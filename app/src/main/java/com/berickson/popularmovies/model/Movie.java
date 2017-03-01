@@ -1,7 +1,11 @@
 package com.berickson.popularmovies.model;
 
 
-public class Movie {
+import java.io.Serializable;
+
+public class Movie implements Serializable {
+
+    private static final long serialVersionUID = 7775344720659963292L;
 
     private String id;
     private String title;
@@ -25,7 +29,7 @@ public class Movie {
     }
 
     public String getVoteAverage() {
-        return voteAverage;
+        return voteAverage + "/10";
     }
 
     public String getPlotSynopsis() {
