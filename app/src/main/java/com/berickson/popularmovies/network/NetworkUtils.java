@@ -57,6 +57,8 @@ public class NetworkUtils {
     }
 
     /**
+     * CopyPasta From Udacity coursework examples!!!
+     *
      * This method returns the entire result from the HTTP response.
      *
      * @param url The URL to fetch the HTTP response from.
