@@ -28,7 +28,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
     public static void startMovieDetailsActivity(Movie movie, Context context) {
         Intent intent = new Intent(context, MovieDetailsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putSerializable(MOVIE_KEY, movie);
+        bundle.putParcelable(MOVIE_KEY, movie);
         intent.putExtras(bundle);
         context.startActivity(intent);
     }
@@ -43,7 +43,7 @@ public class MovieDetailsActivity extends AppCompatActivity {
         if (intent == null) return;
 
         if (intent.hasExtra(MOVIE_KEY)) {
-            movie = (Movie) intent.getSerializableExtra(MOVIE_KEY);
+            movie = intent.getParcelableExtra(MOVIE_KEY);
             populateMovieDetails();
         } else {
             finish();

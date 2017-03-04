@@ -1,5 +1,7 @@
 package com.berickson.popularmovies;
 
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -9,17 +11,20 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.berickson.popularmovies.model.Movie;
+import com.berickson.popularmovies.network.LoadMovieDataTask;
 import com.berickson.popularmovies.network.MovieJsonParser;
 import com.berickson.popularmovies.network.NetworkUtils;
 
 import java.net.URL;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements LoadMovieDataTask.LoadMovieDataTaskCallback {
 
     private static final int LIST_COLUMNS = 2;
+    private static final int LIST_COLUMNS_LANDSCAPE = 3;
 
     private MovieListAdapter movieListAdapter;
 
@@ -31,7 +36,8 @@ public class MainActivity extends AppCompatActivity {
         RecyclerView movieList = (RecyclerView) findViewById(R.id.movie_list);
         movieListAdapter = new MovieListAdapter();
         movieList.setAdapter(movieListAdapter);
-        movieList.setLayoutManager(new GridLayoutManager(this, LIST_COLUMNS));
+        GridLayoutManager gridlayoutManager = initializeGridLayout();
+        movieList.setLayoutManager(gridlayoutManager);
         loadMovieData(NetworkUtils.POPULAR_FILTER);
     }
 
@@ -58,32 +64,27 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void loadMovieData(@NetworkUtils.FilterType String filterType) {
-        new LoadMovieDataTask().execute(filterType);
+    @Override
+    public void onMovieLoadComplete(List<Movie> movieList) {
+        movieListAdapter.replaceAll(movieList);
     }
 
-    private class LoadMovieDataTask extends AsyncTask<String, Void, List<Movie>> {
+    @Override
+    public void onMovieLoadFailed() {
+        Toast.makeText(this, R.string.movie_load_error, Toast.LENGTH_SHORT).show();
+    }
 
-        @Override
-        protected List<Movie> doInBackground(@NetworkUtils.FilterType String... params) {
-
-            @NetworkUtils.FilterType String filterType = params[0];
-            URL movieRequestUrl = NetworkUtils.buildMovieListUrl(filterType);
-
-            try {
-                String jsonMovieResponse = NetworkUtils.getResponseFromHttpUrl(movieRequestUrl);
-                return MovieJsonParser.parseMovies(jsonMovieResponse);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+    private GridLayoutManager initializeGridLayout() {
+        Resources resources = getResources();
+        Configuration configuration = resources.getConfiguration();
+        if (configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            return new GridLayoutManager(this, LIST_COLUMNS);
+        } else {
+            return new GridLayoutManager(this, LIST_COLUMNS_LANDSCAPE);
         }
+    }
 
-        @Override
-        protected void onPostExecute(List<Movie> movieList) {
-            if (movieList == null) return;
-
-            movieListAdapter.replaceAll(movieList);
-        }
+    private void loadMovieData(@NetworkUtils.FilterType String filterType) {
+        new LoadMovieDataTask(this).execute(filterType);
     }
 }

@@ -1,11 +1,10 @@
 package com.berickson.popularmovies.model;
 
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class Movie implements Serializable {
-
-    private static final long serialVersionUID = 7775344720659963292L;
+public class Movie implements Parcelable {
 
     private String id;
     private String title;
@@ -15,6 +14,27 @@ public class Movie implements Serializable {
     private String plotSynopsis;
 
     private Movie() {}
+
+    private Movie(Parcel in) {
+        id = in.readString();
+        title = in.readString();
+        releaseDate = in.readString();
+        posterURL = in.readString();
+        voteAverage = in.readString();
+        plotSynopsis = in.readString();
+    }
+
+    public static final Creator<Movie> CREATOR = new Creator<Movie>() {
+        @Override
+        public Movie createFromParcel(Parcel in) {
+            return new Movie(in);
+        }
+
+        @Override
+        public Movie[] newArray(int size) {
+            return new Movie[size];
+        }
+    };
 
     public String getTitle() {
         return title;
@@ -34,6 +54,21 @@ public class Movie implements Serializable {
 
     public String getPlotSynopsis() {
         return plotSynopsis;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(id);
+        dest.writeString(title);
+        dest.writeString(releaseDate);
+        dest.writeString(posterURL);
+        dest.writeString(voteAverage);
+        dest.writeString(plotSynopsis);
     }
 
     public static class Builder {
